@@ -4,7 +4,7 @@ export default function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer id="contato" className="relative bg-bg-warm border-t border-border">
+    <footer className="relative bg-bg-warm border-t border-border">
       {/* Main Footer */}
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid md:grid-cols-3 gap-12">
@@ -36,7 +36,7 @@ export default function Footer() {
                   className="flex items-center gap-3 text-text-muted hover:text-primary transition-colors text-sm"
                 >
                   <MessageCircle size={16} className="text-primary" />
-                  (19) 99999-9999
+                  (19) 97411-3885
                 </a>
               </li>
               <li>

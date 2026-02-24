@@ -1,5 +1,6 @@
 import { ArrowRight, MessageCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import ShinyText from '@/components/ShinyText'
 
 export default function Hero() {
   return (
@@ -35,9 +36,25 @@ export default function Hero() {
         </div>
 
         {/* Headline */}
-        <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary leading-tight mb-6">
-          Especialista no mercado imobiliário
-          <span className="block mt-2">Campinas e região</span>
+        <h1 className="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+          <ShinyText
+            text="Especialista no mercado imobiliário"
+            color="#F5EDE0"
+            shineColor="#E8B84D"
+            speed={4}
+            spread={120}
+            className="font-heading"
+          />
+          <br />
+          <ShinyText
+            text="Campinas e região"
+            color="#D4A854"
+            shineColor="#FFFFFF"
+            speed={4}
+            delay={0.5}
+            spread={120}
+            className="font-heading"
+          />
         </h1>
 
         {/* Subheadline */}

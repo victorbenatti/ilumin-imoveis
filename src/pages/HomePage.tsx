@@ -5,6 +5,7 @@ import Gallery from '@/sections/Gallery'
 import Institutional from '@/sections/Institutional'
 import FeaturedProperties from '@/sections/FeaturedProperties'
 import Differentials from '@/sections/Differentials'
+import ContactForm from '@/sections/ContactForm'
 
 export default function HomePage() {
   return (
@@ -16,6 +17,7 @@ export default function HomePage() {
         <Institutional />
         <FeaturedProperties />
         <Differentials />
+        <ContactForm />
       </main>
       <Footer />
     </div>

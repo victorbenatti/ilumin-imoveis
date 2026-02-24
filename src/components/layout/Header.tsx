@@ -9,8 +9,8 @@ const menuItems = [
 ]
 
 const socialItems = [
-  { label: 'Instagram', link: 'https://instagram.com' },
-  { label: 'WhatsApp', link: 'https://wa.me/5519999999999' },
+  { label: 'Instagram', link: 'https://www.instagram.com/ilumin.imoveis/' },
+  { label: 'WhatsApp', link: 'https://wa.me/5519974113885' },
 ]
 
 export default function Header() {
