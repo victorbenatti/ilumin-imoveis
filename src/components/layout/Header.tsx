@@ -6,6 +6,7 @@ const menuItems = [
   { label: 'Galeria', link: '/#galeria', ariaLabel: 'Ir para galeria' },
   { label: 'Imóveis', link: '/imoveis', ariaLabel: 'Ver todos os imóveis' },
   { label: 'Contato', link: '/#contato', ariaLabel: 'Ir para contato' },
+  { label: 'Admin', link: '/admin', ariaLabel: 'Ir para painel admin' },
 ]
 
 const socialItems = [
