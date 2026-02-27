@@ -1,10 +1,12 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { Home, LogOut, Menu, X, PlusCircle } from 'lucide-react'
 import { useState } from 'react'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function AdminLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const navigate = useNavigate()
+  const { logout, currentUser } = useAuth()
 
   const navItems = [
     { icon: Home, label: 'Meus Imóveis', path: '/admin/imoveis', end: true },
@@ -60,7 +62,14 @@ export default function AdminLayout() {
           {/* Bottom Area */}
           <div className="p-4 border-t border-border">
             <button 
-              onClick={() => navigate('/')}
+              onClick={async () => {
+                try {
+                  await logout()
+                  navigate('/')
+                } catch(e) {
+                  console.error('Erro ao sair:', e)
+                }
+              }}
               className="flex items-center w-full gap-3 px-3 py-2.5 text-sm font-medium text-text-muted rounded-lg hover:bg-bg-card hover:text-primary transition-colors cursor-pointer"
             >
               <LogOut className="w-5 h-5" />
@@ -85,8 +94,8 @@ export default function AdminLayout() {
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold border border-primary/20">
-              A
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold border border-primary/20 uppercase" title={currentUser?.email || 'Admin'}>
+              {currentUser?.email ? currentUser.email.charAt(0) : 'A'}
             </div>
           </div>
         </header>
