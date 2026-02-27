@@ -30,6 +30,11 @@
   pointer-events: none;
   z-index: 20;
   overflow: visible;
+  transition: transform 0.4s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.staggered-menu-header.sm-header-hidden {
+  transform: translateY(-160px);
 }
 
 .staggered-menu-header>* {

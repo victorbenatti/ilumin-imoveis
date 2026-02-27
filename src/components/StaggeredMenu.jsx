@@ -31,6 +31,35 @@ export const StaggeredMenu = ({
   const textInnerRef = useRef(null);
   const textWrapRef = useRef(null);
   const [textLines, setTextLines] = useState(['Menu', 'Close']);
+  const [hiddenOnScroll, setHiddenOnScroll] = useState(false);
+
+  React.useEffect(() => {
+    let lastScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      if (openRef.current) {
+        setHiddenOnScroll(false);
+        return;
+      }
+
+      const currentScrollY = window.scrollY;
+
+      if (window.innerWidth <= 1024) { // Somente em mobile/tablet
+        if (currentScrollY > lastScrollY && currentScrollY > 100) {
+          setHiddenOnScroll(true);
+        } else if (currentScrollY < lastScrollY) {
+          setHiddenOnScroll(false);
+        }
+      } else {
+        setHiddenOnScroll(false);
+      }
+
+      lastScrollY = currentScrollY > 0 ? currentScrollY : 0;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const openTlRef = useRef(null);
   const closeTweenRef = useRef(null);
@@ -364,7 +393,7 @@ export const StaggeredMenu = ({
           return arr.map((c, i) => <div key={i} className="sm-prelayer" style={{ background: c }} />);
         })()}
       </div>
-      <header className="staggered-menu-header" aria-label="Main navigation header">
+      <header className={`staggered-menu-header ${hiddenOnScroll && !open ? 'sm-header-hidden' : ''}`} aria-label="Main navigation header">
         <div className="sm-logo" aria-label="Logo">
           <img
             src={logoUrl || '/src/assets/logos/reactbits-gh-white.svg'}
