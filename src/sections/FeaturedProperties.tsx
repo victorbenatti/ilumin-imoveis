@@ -1,37 +1,41 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { collection, query, where, getDocs, limit } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
+import { formatPrice } from '@/data/properties'
+import type { Property } from '@/data/properties'
 import PropertyCard from '@/components/ui/PropertyCard'
 
-const properties = [
-  {
-    image:
-      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80',
-    price: 'R$ 1.250.000',
-    location: 'Cambuí, Campinas - SP',
-    title: 'Apartamento de Alto Padrão',
-    bedrooms: 3,
-    area: '145 m²',
-  },
-  {
-    image:
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80',
-    price: 'R$ 2.800.000',
-    location: 'Alphaville, Campinas - SP',
-    title: 'Casa em Condomínio Fechado',
-    bedrooms: 4,
-    area: '320 m²',
-  },
-  {
-    image:
-      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80',
-    price: 'R$ 980.000',
-    location: 'Taquaral, Campinas - SP',
-    title: 'Cobertura Duplex Exclusiva',
-    bedrooms: 3,
-    area: '200 m²',
-  },
-]
-
 export default function FeaturedProperties() {
+  const [properties, setProperties] = useState<Property[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const q = query(
+          collection(db, 'imoveis'),
+          where('featured', '==', true),
+          limit(6)
+        )
+        const snapshot = await getDocs(q)
+        
+        const fetchedProps: Property[] = []
+        snapshot.forEach((doc) => {
+          fetchedProps.push({ id: doc.id, ...doc.data() } as Property)
+        })
+        
+        setProperties(fetchedProps)
+      } catch (error) {
+        console.error("Erro ao buscar imóveis em destaque:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchFeatured()
+  }, [])
+
   return (
     <section id="imoveis" className="relative py-24 lg:py-32">
       {/* Background accent */}
@@ -49,11 +53,29 @@ export default function FeaturedProperties() {
           Selecionamos os melhores imóveis de Campinas e região para você.
         </p>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {properties.map((prop) => (
-            <PropertyCard key={prop.title} {...prop} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center items-center py-16">
+            <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+          </div>
+        ) : properties.length > 0 ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {properties.map((prop) => (
+              <PropertyCard
+                key={prop.id}
+                image={prop.images?.[0] || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80'}
+                price={formatPrice(prop.price, prop.purpose)}
+                location={`${prop.neighborhood}, ${prop.city} - ${prop.state}`}
+                title={prop.title}
+                bedrooms={prop.bedrooms}
+                area={`${prop.area} m²`}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-text-muted">
+            <p>Nenhum imóvel em destaque encontrado no momento.</p>
+          </div>
+        )}
 
         {/* CTA */}
         <div className="text-center mt-14">

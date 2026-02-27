@@ -1,10 +1,14 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowLeft, Save, UploadCloud, X } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { collection, addDoc, doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 import type { Property } from '@/data/properties'
 
 export default function PropertyForm() {
   const navigate = useNavigate()
+  const { id } = useParams()
+  
   const [formData, setFormData] = useState<Partial<Property>>({
     title: '',
     description: '',
@@ -20,11 +24,39 @@ export default function PropertyForm() {
     parkingSpaces: 0,
     area: 0,
     featured: false,
-    images: [] // mock strings for now
+    images: [] 
   })
 
-  // Simulated local image preview
+  // Estados para gerenciar as imagens
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const [imageFiles, setImageFiles] = useState<File[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Busca os dados do imóvel se estivermos no modo edição
+  useEffect(() => {
+    if (id) {
+      const fetchProperty = async () => {
+        try {
+          const docRef = doc(db, 'imoveis', id)
+          const docSnap = await getDoc(docRef)
+          
+          if (docSnap.exists()) {
+            const data = docSnap.data() as Property
+            setFormData(data)
+            if (data.images) {
+              setImagePreviews(data.images) // Carrega as fotos antigas pro preview
+            }
+          } else {
+            alert('Imóvel não encontrado!')
+            navigate('/admin/imoveis')
+          }
+        } catch (error) {
+          console.error("Erro ao carregar o imóvel:", error)
+        }
+      }
+      fetchProperty()
+    }
+  }, [id, navigate])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
@@ -46,37 +78,93 @@ export default function PropertyForm() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (files) {
-      // Simulate reading files and creating generic preview URLs
-      const newPreviews = Array.from(files).map(file => URL.createObjectURL(file))
+      const newFiles = Array.from(files)
+      
+      // Guarda os arquivos reais para enviar pro Cloudinary
+      setImageFiles(prev => [...prev, ...newFiles])
+      
+      // Gera os previews visuais temporários
+      const newPreviews = newFiles.map(file => URL.createObjectURL(file))
       setImagePreviews(prev => [...prev, ...newPreviews])
-      // Em um cenário real de Firestore, subiríamos os arquivos pro Storage
     }
   }
 
   const handleRemoveImage = (index: number) => {
+    const removedPreview = imagePreviews[index]
     setImagePreviews(prev => prev.filter((_, i) => i !== index))
+    
+    // Se a imagem sendo removida for nova (local), removemos de imageFiles
+    if (!removedPreview.startsWith('http')) {
+      const newFilesBeforeThis = imagePreviews.slice(0, index).filter(url => !url.startsWith('http')).length
+      setImageFiles(prev => prev.filter((_, i) => i !== newFilesBeforeThis))
+    }
   }
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsSubmitting(true)
     
-    // Simulate formatting data to save
-    const payloadToSave: Partial<Property> = {
-      ...formData,
-      images: imagePreviews, // replace with valid URLs
-      createdAt: new Date().toISOString()
+    try {
+      const newUploadedUrls: string[] = []
+      
+      // 1. Fazer upload apenas das NOVAS imagens (imageFiles) para o Cloudinary
+      for (const file of imageFiles) {
+        const cloudinaryData = new FormData()
+        cloudinaryData.append('file', file)
+        
+        // Mantendo seu upload_preset original
+        cloudinaryData.append('upload_preset', 'db_default') 
+        
+        // Mantendo sua URL original Cloud Name
+        const res = await fetch(
+          'https://api.cloudinary.com/v1_1/doxryebzb/image/upload', 
+          {
+            method: 'POST',
+            body: cloudinaryData
+          }
+        )
+
+        if (!res.ok) throw new Error('Falha ao subir imagem pro Cloudinary')
+        
+        const data = await res.json()
+        newUploadedUrls.push(data.secure_url) 
+      }
+
+      // 2. Mesclar imagens antigas mantidas com as novas
+      // URLs que começam com 'http' são do Cloudinary. O que for 'blob:' era preview local.
+      const retainedExistingUrls = imagePreviews.filter(url => url.startsWith('http'))
+      const finalImages = [...retainedExistingUrls, ...newUploadedUrls]
+
+      // 3. Montar o objeto final
+      const payloadToSave = {
+        ...formData,
+        images: finalImages,
+        updatedAt: serverTimestamp() 
+      }
+
+      // 4. Decidir se é Create (Novo) ou Update (Edição)
+      if (id) {
+        // Modo Edição
+        const docRef = doc(db, 'imoveis', id)
+        await updateDoc(docRef, payloadToSave)
+        alert('✅ Imóvel atualizado com sucesso!')
+      } else {
+        // Modo Criação
+        await addDoc(collection(db, 'imoveis'), {
+          ...payloadToSave,
+          createdAt: serverTimestamp() // Só grava createdAt na criação
+        })
+        alert('✅ Imóvel salvo com sucesso!')
+      }
+
+      navigate('/admin/imoveis')
+      
+    } catch (error) {
+      console.error("Erro ao salvar o imóvel:", error)
+      alert('Erro ao salvar. Verifique o console para mais detalhes.')
+    } finally {
+      setIsSubmitting(false)
     }
-
-    console.log('--- PAYLOAD TO SAVE ---', payloadToSave)
-    // TODO: Integrar com Firestore aqui:
-    // try {
-    //   await addDoc(collection(db, 'properties'), payloadToSave)
-    //   alert('Imóvel salvo com sucesso!')
-    //   navigate('/admin/imoveis')
-    // } catch (err) { ... }
-
-    alert('✅ Imóvel salvo com sucesso! Confira o console para a Payload de dados enviada.')
-    navigate('/admin/imoveis')
   }
 
   return (
@@ -90,8 +178,12 @@ export default function PropertyForm() {
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text-primary">Novo Imóvel</h1>
-          <p className="text-sm text-text-muted">Preencha os dados para anunciar a propriedade.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-text-primary">
+            {id ? 'Editar Imóvel' : 'Novo Imóvel'}
+          </h1>
+          <p className="text-sm text-text-muted">
+            {id ? 'Atualize os dados da propriedade.' : 'Preencha os dados para anunciar a propriedade.'}
+          </p>
         </div>
       </div>
 
@@ -369,10 +461,11 @@ export default function PropertyForm() {
           </Link>
           <button
             type="submit"
-            className="btn-primary"
+            disabled={isSubmitting}
+            className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Save className="w-5 h-5" />
-            Salvar Imóvel
+            {isSubmitting ? 'Salvando...' : (id ? 'Atualizar Imóvel' : 'Salvar Imóvel')}
           </button>
         </div>
       </form>

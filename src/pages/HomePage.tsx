@@ -13,9 +13,9 @@ export default function HomePage() {
       <Header />
       <main>
         <Hero />
+        <FeaturedProperties />
         <Gallery />
         <Institutional />
-        <FeaturedProperties />
         <Differentials />
         <ContactForm />
       </main>
