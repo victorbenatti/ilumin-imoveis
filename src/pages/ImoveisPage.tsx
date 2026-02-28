@@ -1,16 +1,19 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Search, SlidersHorizontal, MapPin, BedDouble, Bath, Car, Maximize, ArrowRight, ChevronLeft, X } from 'lucide-react'
+import { Search, SlidersHorizontal, MapPin, BedDouble, Bath, Car, Maximize, ArrowRight, ChevronLeft, X, Loader2 } from 'lucide-react'
 import {
-  mockProperties,
   propertyTypes,
   propertyPurposes,
   formatPrice,
   type Property,
 } from '@/data/properties'
+import { collection, getDocs, query, orderBy } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 import './ImoveisPage.css'
 
 export default function ImoveisPage() {
+  const [properties, setProperties] = useState<Property[]>([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [type, setType] = useState('')
   const [purpose, setPurpose] = useState('')
@@ -19,8 +22,27 @@ export default function ImoveisPage() {
   const [minBedrooms, setMinBedrooms] = useState('')
   const [showFilters, setShowFilters] = useState(false)
 
+  useEffect(() => {
+    async function fetchProperties() {
+      try {
+        const q = query(collection(db, 'imoveis'), orderBy('createdAt', 'desc'))
+        const querySnapshot = await getDocs(q)
+        const docs = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Property[]
+        setProperties(docs)
+      } catch (error) {
+        console.error("Erro ao buscar imóveis:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProperties()
+  }, [])
+
   const filtered = useMemo(() => {
-    return mockProperties.filter((p: Property) => {
+    return properties.filter((p: Property) => {
       // Search by title, neighborhood, or description
       if (search) {
         const s = search.toLowerCase()
@@ -49,7 +71,7 @@ export default function ImoveisPage() {
 
       return true
     })
-  }, [search, type, purpose, minPrice, maxPrice, minBedrooms])
+  }, [properties, search, type, purpose, minPrice, maxPrice, minBedrooms])
 
   const activeFilterCount = [type, purpose, minPrice, maxPrice, minBedrooms].filter(Boolean).length
 
@@ -211,7 +233,12 @@ export default function ImoveisPage() {
 
       {/* Properties Grid */}
       <div className="imoveis-grid-container">
-        {filtered.length > 0 ? (
+        {loading ? (
+          <div className="imoveis-empty">
+            <Loader2 size={48} className="imoveis-empty-icon animate-spin" />
+            <h3>Carregando imóveis...</h3>
+          </div>
+        ) : filtered.length > 0 ? (
           <div className="imoveis-grid">
             {filtered.map((property) => (
               <PropertyListCard key={property.id} property={property} />
@@ -239,7 +266,7 @@ function PropertyListCard({ property }: { property: Property }) {
       {/* Image */}
       <div className="imovel-card-image-wrap">
         <img
-          src={property.images[0]}
+          src={property.images?.[0] || 'https://placehold.co/600x400?text=Sem+Imagem'}
           alt={property.title}
           className="imovel-card-image"
           loading="lazy"
