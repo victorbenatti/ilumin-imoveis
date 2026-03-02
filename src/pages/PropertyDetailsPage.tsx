@@ -238,8 +238,8 @@ export default function PropertyDetailsPage() {
                   <span className="text-bg-dark/70 block mb-3 uppercase tracking-widest font-black text-sm">
                     Investimento
                   </span>
-                  <div className="text-5xl xl:text-6xl font-extrabold text-bg-dark mb-2 tracking-tighter">
-                    {formatPrice(property.price, property.purpose)}
+                  <div className="text-4xl md:text-5xl font-extrabold text-bg-dark mb-2 tracking-tighter break-words">
+                    {formatPrice(property.price)}
                   </div>
                   {property.purpose === 'aluguel' && (
                     <span className="text-2xl text-bg-dark/80 font-medium block mt-2">/ mês</span>

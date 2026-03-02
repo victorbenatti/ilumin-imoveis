@@ -249,11 +249,10 @@ export const neighborhoods = [
     'Nova Campinas',
 ]
 
-export function formatPrice(price: number, purpose: string): string {
-    const formatted = price.toLocaleString('pt-BR', {
+export function formatPrice(price: number): string {
+    return price.toLocaleString('pt-BR', {
         style: 'currency',
         currency: 'BRL',
         minimumFractionDigits: 0,
     })
-    return purpose === 'aluguel' ? `${formatted}/mês` : formatted
 }
