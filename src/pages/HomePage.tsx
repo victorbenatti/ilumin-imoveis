@@ -3,7 +3,7 @@ import Footer from '@/components/layout/Footer'
 import Hero from '@/sections/Hero'
 import Gallery from '@/sections/Gallery'
 import Institutional from '@/sections/Institutional'
-import FeaturedProperties from '@/sections/FeaturedProperties'
+import PropertySearchSection from '@/sections/PropertySearchSection'
 import Differentials from '@/sections/Differentials'
 import ContactForm from '@/sections/ContactForm'
 
@@ -13,7 +13,7 @@ export default function HomePage() {
       <Header />
       <main>
         <Hero />
-        <FeaturedProperties />
+        <PropertySearchSection />
         <Gallery />
         <Institutional />
         <Differentials />

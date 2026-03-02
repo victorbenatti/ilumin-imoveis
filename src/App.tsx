@@ -3,7 +3,7 @@ import { AuthProvider } from '@/contexts/AuthContext'
 import ProtectedRoute from '@/components/layout/ProtectedRoute'
 
 import HomePage from '@/pages/HomePage'
-import ImoveisPage from '@/pages/ImoveisPage'
+import PropertyDetailsPage from '@/pages/PropertyDetailsPage'
 
 // Admin Pages
 import AdminLayout from '@/layouts/AdminLayout'
@@ -18,7 +18,7 @@ export default function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
-          <Route path="/imoveis" element={<ImoveisPage />} />
+          <Route path="/imovel/:id" element={<PropertyDetailsPage />} />
 
           {/* Admin Login Route */}
           <Route path="/admin/login" element={<LoginPage />} />
