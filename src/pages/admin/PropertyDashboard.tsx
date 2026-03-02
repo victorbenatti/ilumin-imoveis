@@ -154,7 +154,8 @@ export default function PropertyDashboard() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-text-secondary">
-                        {formatPrice(property.price, property.purpose)}
+                        {formatPrice(property.price)}
+                        {property.purpose === 'aluguel' ? ' / mês' : ''}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

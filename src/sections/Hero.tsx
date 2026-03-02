@@ -72,7 +72,7 @@ export default function Hero() {
             <ArrowRight size={18} />
           </Link>
           <a
-            href="https://wa.me/5519999999999"
+            href="https://wa.me/5519974113885"
             target="_blank"
             rel="noopener noreferrer"
             className="btn-secondary text-base"

@@ -269,7 +269,8 @@ function PropertyListCard({ property }: { property: Property }) {
         </div>
         {/* Price overlay */}
         <div className="imovel-card-price">
-          {formatPrice(property.price, property.purpose)}
+          {formatPrice(property.price)}
+          {property.purpose === 'aluguel' ? <span className="text-sm font-normal">/mês</span> : ''}
         </div>
       </div>
 

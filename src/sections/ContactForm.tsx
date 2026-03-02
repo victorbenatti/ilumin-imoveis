@@ -29,8 +29,24 @@ export default function ContactForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Futuramente: enviar para Firebase / API
-    console.log('Form data:', formData)
+    
+    // Construct WhatsApp message with form data
+    const message = `*Nova mensagem via Site - Ilumin Imóveis*
+    
+*Assunto:* ${formData.subject}
+*Nome:* ${formData.name}
+*Telefone:* ${formData.phone}
+*E-mail:* ${formData.email}
+
+*Mensagem:*
+${formData.message}`
+
+    const encodedMessage = encodeURIComponent(message)
+    const whatsappUrl = `https://wa.me/5519974113885?text=${encodedMessage}`
+    
+    // Open WhatsApp in a new tab
+    window.open(whatsappUrl, '_blank')
+
     setSubmitted(true)
 
     setTimeout(() => {
