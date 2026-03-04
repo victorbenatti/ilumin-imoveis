@@ -60,11 +60,20 @@ export default function PropertyForm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
-    const parsedValue = type === 'number' ? Number(value) : value
+    const parsedValue = type === 'number' ? (value === '' ? 0 : Number(value)) : value
     
     setFormData(prev => ({
       ...prev,
       [name]: parsedValue
+    }))
+  }
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '')
+    const numericValue = value ? Number(value) / 100 : 0
+    setFormData(prev => ({
+      ...prev,
+      price: numericValue
     }))
   }
 
@@ -259,11 +268,10 @@ export default function PropertyForm() {
               <input
                 id="price"
                 name="price"
-                type="number"
-                min="0"
+                type="text"
                 required
-                value={formData.price}
-                onChange={handleChange}
+                value={formData.price ? formData.price.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ''}
+                onChange={handlePriceChange}
                 placeholder="0,00"
                 className="w-full rounded-lg border border-border px-4 py-2.5 bg-bg-dark text-text-primary focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-text-muted/50"
               />
@@ -283,7 +291,7 @@ export default function PropertyForm() {
                 name="bedrooms"
                 type="number"
                 min="0"
-                value={formData.bedrooms}
+                value={formData.bedrooms === 0 ? '' : formData.bedrooms}
                 onChange={handleChange}
                 className="w-full rounded-lg border border-border px-4 py-2.5 bg-bg-dark text-text-primary focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
               />
@@ -295,7 +303,7 @@ export default function PropertyForm() {
                 name="bathrooms"
                 type="number"
                 min="0"
-                value={formData.bathrooms}
+                value={formData.bathrooms === 0 ? '' : formData.bathrooms}
                 onChange={handleChange}
                 className="w-full rounded-lg border border-border px-4 py-2.5 bg-bg-dark text-text-primary focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
               />
@@ -307,7 +315,7 @@ export default function PropertyForm() {
                 name="parkingSpaces"
                 type="number"
                 min="0"
-                value={formData.parkingSpaces}
+                value={formData.parkingSpaces === 0 ? '' : formData.parkingSpaces}
                 onChange={handleChange}
                 className="w-full rounded-lg border border-border px-4 py-2.5 bg-bg-dark text-text-primary focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
               />
@@ -319,7 +327,7 @@ export default function PropertyForm() {
                 name="area"
                 type="number"
                 min="0"
-                value={formData.area}
+                value={formData.area === 0 ? '' : formData.area}
                 onChange={handleChange}
                 className="w-full rounded-lg border border-border px-4 py-2.5 bg-bg-dark text-text-primary focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
               />
