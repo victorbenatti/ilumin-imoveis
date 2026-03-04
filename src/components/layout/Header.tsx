@@ -4,7 +4,7 @@ const menuItems = [
   { label: 'Início', link: '/#inicio', ariaLabel: 'Ir para o início' },
   { label: 'Sobre', link: '/#sobre', ariaLabel: 'Ir para sobre' },
   { label: 'Galeria', link: '/#galeria', ariaLabel: 'Ir para galeria' },
-  { label: 'Imóveis', link: '/imoveis', ariaLabel: 'Ver todos os imóveis' },
+  { label: 'Imóveis', link: '/#buscar-imoveis', ariaLabel: 'Buscar imóveis' },
   { label: 'Contato', link: '/#contato', ariaLabel: 'Ir para contato' },
   { label: 'Admin', link: '/admin', ariaLabel: 'Ir para painel admin' },
 ]
